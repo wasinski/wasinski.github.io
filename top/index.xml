@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tops on Wasinski&#39;s Blog</title>
+    <link>https://wasinski.dev/top/</link>
+    <description>Recent content in Tops on Wasinski&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://wasinski.dev/top/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About me</title>
+      <link>https://wasinski.dev/top/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://wasinski.dev/top/about/</guid>
+      <description>About me Hello! My name is Tomasz Wąsiński. I&amp;rsquo;m a software developer from Poland with over 3 years of professional experience. I specialize as a backend engineer, systems architect and technical leader.
+The first language which I reached the production environment with, was Python, and now I&amp;rsquo;m in love with it, although it&amp;rsquo;s not always easy.
+I&amp;rsquo;m an enthusiast of DDD &amp;amp; clean architecture, and that&amp;rsquo;s how I prefer to build systems from the ground up.</description>
+    </item>
+    
+  </channel>
+</rss>
