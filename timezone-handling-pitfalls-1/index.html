@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="Wasinski&#39;s Blog">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://wasinski.dev/img/background.jpg">
+    <meta property="twitter:image" content="https://wasinski.dev/img/background.jpg" />
+    
+
+    
+    <meta name="title" content="Timezone handling pitfalls I" />
+    <meta property="og:title" content="Timezone handling pitfalls I" />
+    <meta property="twitter:title" content="Timezone handling pitfalls I" />
+    
+
+    
+    <meta name="description" content="Recently I have the pleasure to work as technology leader on a project that requires proper implementation of timezone handling, over some time I learned, sometimes the hard way quite a lot on this topic.">
+    <meta property="og:description" content="Recently I have the pleasure to work as technology leader on a project that requires proper implementation of timezone handling, over some time I learned, sometimes the hard way quite a lot on this topic." />
+    <meta property="twitter:description" content="Recently I have the pleasure to work as technology leader on a project that requires proper implementation of timezone handling, over some time I learned, sometimes the hard way quite a lot on this topic." />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="wasinski, Wasinski, Wąsiński, wąsiński, programming, programowanie, architecture, domain driven design, DDD, architektura, technical leadership, software design">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Timezone handling pitfalls I-Tomasz Wasinski Blog</title>
+
+    <link rel="canonical" href="/timezone-handling-pitfalls-1/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+	
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    
+    <script src="/js/jquery.min.js"></script>
+    
+    
+    <script src="/js/bootstrap.min.js"></script>
+    
+    
+    <script src="/js/hux-blog.min.js"></script>
+	
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/docco.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Wasinski&#39;s Blog</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/categories/tech">tech</a>
+                    </li>
+                    
+                    
+		    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/post-1.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                    </div>
+                    <h1>Timezone handling pitfalls I</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+			Posted by 
+			
+			    Tomasz Wąsiński
+			 
+			on 
+			Wednesday, August 5, 2020
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li><a href="#short-intro-of-the-domain">Short intro of the domain</a></li>
+    <li><a href="#changeing-the-_server-time_-eg-use-datetimenow-instead-of-datetimeutcnowin-python-terms">Changeing the <em>server time</em>, e.g. use <code>datetime.now()</code> instead of <code>datetime.utcnow()</code>(in Python terms)</a></li>
+    <li><a href="#using-timezone-aware-type-for-the-taskscheduled_for-attribute">Using timezone-aware type for the <code>Task.scheduled_for</code> attribute</a></li>
+    <li><a href="#converting-taskscheduled_for-value-to-utc-shifted-from-the-users-local-timezone-upon-object-creation">Converting <code>Task.scheduled_for</code> value to UTC shifted from the user&rsquo;s local timezone upon object creation.</a></li>
+    <li><a href="#using-simply-local-time-to-validate-the-rules">Using simply local time to validate the rules.</a></li>
+    <li><a href="#new-requirement-coming">New requirement coming</a></li>
+    <li><a href="#things-to-remember">Things to remember</a></li>
+    <li><a href="#further-reading--sources">Further reading / sources</a></li>
+  </ul>
+</nav>
+                
+                <h1 id="timezone-handling-pitfalls-i">Timezone handling pitfalls I</h1>
+<h2 id="short-intro-of-the-domain">Short intro of the domain</h2>
+<p>Recently I have the pleasure to work as technology leader on a project that requires proper implementation of timezone handling, over some time I learned, sometimes the hard way quite a lot on this topic.</p>
+<p>Let us introduce an example domain: task scheduling, <em>the user can schedule a task for an arbitrary day in the future, and when that day comes she can marked it as done</em>. Later on we will add more requirements. For now:</p>
+<p><code>can_mark_as_done IF Task.scheduled_for &lt;= UTC_NOW.date()</code></p>
+<p>A rule of thumb is to use UTC as a default for your application and servers, so that&rsquo;s what we do here.</p>
+<p>Now lets suppose that the user lives in CET timezone which is UTC+1, this will break our logic: the user won&rsquo;t be able to mark the <code>Task</code> as done between 00:00-01:00 local time, because at that time it&rsquo;s still <em>the previous day</em> in the UTC timezone.</p>
+<p>How to solve it? There are couple of possibilities, lets examine the first one</p>
+<h2 id="changeing-the-_server-time_-eg-use-datetimenow-instead-of-datetimeutcnowin-python-terms">Changeing the <em>server time</em>, e.g. use <code>datetime.now()</code> instead of <code>datetime.utcnow()</code>(in Python terms)</h2>
+<p>Easy, and simple, works as a charm, until we won&rsquo;t have users from other parts of the world, other than our server&rsquo;s timezone. <em>Won&rsquo;t fix</em> as they say.</p>
+<h2 id="using-timezone-aware-type-for-the-taskscheduled_for-attribute">Using timezone-aware type for the <code>Task.scheduled_for</code> attribute</h2>
+<p>Fixes our logic, but has one substantial drawback - databases do not work well with tz-aware types, for example Postgres stores the timestamp normalized to UTC and does not store the information about the timezone, we would need to use a separate field to store it. So why complicate stuf? <em>Won&rsquo;t fix</em></p>
+<h2 id="converting-taskscheduled_for-value-to-utc-shifted-from-the-users-local-timezone-upon-object-creation">Converting <code>Task.scheduled_for</code> value to UTC shifted from the user&rsquo;s local timezone upon object creation.</h2>
+<p>So instead of saving just the day, for example <code>2020-12-12</code> we would transform it to datetime object <code>2020-12-12T00:00</code> and apply the shift resulting in <code>2020-12-11T23:00</code>. That way our logic would work smoothly around the midnight. And if we would need to query for this field the database would use a naive datetime type.</p>
+<p>But&hellip; isn&rsquo;t this a bit to complex? Let us introduce one more requirement: <em>our users travel a lot, so they do not stick to just one timezone, we would like to allow them complete the tasks wherever they currently are</em></p>
+<p>Because we saved the time upon creation, we are limited to that timezone, each time the user would travel to a different timezone we would need to adjust the value - that&rsquo;s pointless. So <em>won&rsquo;t fix</em>.</p>
+<h2 id="using-simply-local-time-to-validate-the-rules">Using simply local time to validate the rules.</h2>
+<p>Instead of using our <em>server time</em> to validate the logic, why not use user&rsquo;s local time? Something like this: <code>can_mark_as_done IF Task.scheduled_for &lt;= LOCAL_DATETIME_NOW.date()</code>. In a web application we can have the <em>local datetime</em> delivered via a header on each request. Obviously this loosens up the business rule quite substantially, but it actually happened earlier when we allowed our users to travel ;) One way to prevent &ldquo;cheating&rdquo; is to validate the incoming datetime if it is plausible - somewhere between -11 and +14 from current UTC time - as these are largest possible time shifts.</p>
+<p>Above solution is very easy to implement, works fantastic with mobile apps - always adjusting to user&rsquo;s timezone. My team and the client were very happy with this solution. Until one day.</p>
+<h2 id="new-requirement-coming">New requirement coming</h2>
+<p><em>We would like to introduce Teams, where users could rival on how many Tasks they complete. To make it fair, this time we will stick to one timezone for Tasks which will count towards the score</em>.</p>
+<p>Oh my, and our perfect solution just went down the drain. I will get back to this subject in my next post.</p>
+<h2 id="things-to-remember">Things to remember</h2>
+<ul>
+<li>use plain naive types, which work well with databases</li>
+<li>storing UTC works great with dates in past but for future dates it becomes unnecessarily complex</li>
+<li>when possible, store naive-local date/datetime and evaluate it &ldquo;when the time comes&rdquo; against a local datetime, I call this approach <em>floating timezones</em></li>
+</ul>
+<h2 id="further-reading--sources">Further reading / sources</h2>
+<ul>
+<li><a href="http://www.creativedeletion.com/2015/03/19/persisting_future_datetimes.html">How to save datetimes for future events - (when UTC is not the right answer)</a></li>
+<li><a href="https://www.postgresql.org/docs/11/datatype-datetime.html">Postgres documentation 8.5.1.3 timestamp tz-aware</a></li>
+<li><a href="https://stackoverflow.com/a/2532962/5792269">StackOverflow - Good starting point for learning about timezone handling pitfalls</a></li>
+</ul>
+
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                   <li>
+                       <a href="" rel="alternate" type="application/rss+xml" title="Wasinski&#39;s Blog" >
+                           <span class="fa-stack fa-lg">
+                               <i class="fa fa-circle fa-stack-2x"></i>
+                               <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                           </span>
+                       </a>
+                   </li>
+                   
+                    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://stackoverflow.com/users/5792269/antash/">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+
+                    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wasinski">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    <li>
+                        <a target="_blank" href="https://www.linkedin.com/in/tomasz-w%C4%85si%C5%84ski-a7700ba5/">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; Wasinski&#39;s Blog 2020
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite">CleanWhite Hugo Theme</a> by <a href="https://zhaohuabing.com">Huabing</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=zhaohuabing&repo=hugo-theme-cleanwhite&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+</body>
+</html>
