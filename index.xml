@@ -6,10 +6,19 @@
     <description>Recent content on Wasinski&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 05 Aug 2020 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 19 Sep 2020 12:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://wasinski.dev/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Is that Dependency Injection or Service Locator Pattern?</title>
+      <link>https://wasinski.dev/dependency-injection-service-locator-1/</link>
+      <pubDate>Sat, 19 Sep 2020 12:00:00 +0000</pubDate>
+      
+      <guid>https://wasinski.dev/dependency-injection-service-locator-1/</guid>
+      <description>Is that Dependency Injection or Service Locator Pattern? I have to admit to something. For the last 2 years, I was using Service Locator Pattern in one of my projects while being completely convinced that I was using Dependency Injection, but it turns out that I&amp;rsquo;m not alone in making such a mistake. What are the differences, what are the consequences of being wrong, and how to distinguish these two patterns?</description>
+    </item>
     
     <item>
       <title>Timezone handling pitfalls I</title>
