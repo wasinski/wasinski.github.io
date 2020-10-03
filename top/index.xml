@@ -5,11 +5,7 @@
     <link>https://wasinski.dev/top/</link>
     <description>Recent content in Tops on Wasinski&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://wasinski.dev/top/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://wasinski.dev/top/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>About me</title>
       <link>https://wasinski.dev/top/about/</link>

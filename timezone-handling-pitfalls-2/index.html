@@ -15,9 +15,9 @@
     
 
     
-    <meta name="title" content="Timezone handling pitfalls I" />
-    <meta property="og:title" content="Timezone handling pitfalls I" />
-    <meta property="twitter:title" content="Timezone handling pitfalls I" />
+    <meta name="title" content="Timezone handling pitfalls II" />
+    <meta property="og:title" content="Timezone handling pitfalls II" />
+    <meta property="twitter:title" content="Timezone handling pitfalls II" />
     
 
     
@@ -34,9 +34,9 @@
     <meta name="keyword"  content="wasinski, Wasinski, Wąsiński, wąsiński, programming, programowanie, architecture, domain driven design, DDD, architektura, technical leadership, software design">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>Timezone handling pitfalls I-Tomasz Wasinski Blog</title>
+    <title>Timezone handling pitfalls II-Tomasz Wasinski Blog</title>
 
-    <link rel="canonical" href="/timezone-handling-pitfalls-1/">
+    <link rel="canonical" href="/timezone-handling-pitfalls-2/">
 
     <link rel="stylesheet" href="/css/iDisqus.min.css"/>
 	
@@ -144,7 +144,7 @@
 
 <style type="text/css">
     header.intro-header {
-        background-image: url('/img/post-1.jpg')
+        background-image: url('/img/post-3.jpg')
     }
 </style>
 <header class="intro-header">
@@ -155,15 +155,15 @@
                     <div class="tags">
                         
                     </div>
-                    <h1>Timezone handling pitfalls I</h1>
-                    <h2 class="subheading">there are simpler solutions than UTC</h2>
+                    <h1>Timezone handling pitfalls II</h1>
+                    <h2 class="subheading">When you must use timezone-aware solutions</h2>
                     <span class="meta">
 			Posted by 
 			
 			    Tomasz Wąsiński
 			 
 			on 
-			Wednesday, August 5, 2020
+			Friday, October 2, 2020
                         
                     </span>
                 </div>
@@ -191,52 +191,61 @@
                 </header>
                 <nav id="TableOfContents">
   <ul>
-    <li><a href="#short-intro-of-the-domain">Short intro of the domain</a></li>
-    <li><a href="#changeing-the-_server-time_-eg-use-datetimenow-instead-of-datetimeutcnowin-python-terms">Changeing the <em>server time</em>, e.g. use <code>datetime.now()</code> instead of <code>datetime.utcnow()</code>(in Python terms)</a></li>
-    <li><a href="#using-timezone-aware-type-for-the-taskscheduled_for-attribute">Using timezone-aware type for the <code>Task.scheduled_for</code> attribute</a></li>
-    <li><a href="#converting-taskscheduled_for-value-to-utc-shifted-from-the-users-local-timezone-upon-object-creation">Converting <code>Task.scheduled_for</code> value to UTC shifted from the user&rsquo;s local timezone upon object creation.</a></li>
-    <li><a href="#using-simply-local-time-to-validate-the-rules">Using simply local time to validate the rules.</a></li>
-    <li><a href="#new-requirement-coming">New requirement coming</a></li>
-    <li><a href="#things-to-remember">Things to remember</a></li>
-    <li><a href="#further-reading--sources">Further reading / sources</a></li>
+    <li><a href="#timezone-handling-isnt-simple-and-is-not-easy">Timezone handling isn&rsquo;t simple and is not easy</a></li>
+    <li><a href="#when-timezones-change-their-time">When timezones change their time&hellip;</a></li>
+    <li><a href="#job-scheduling">Job scheduling</a></li>
+    <li><a href="#converting-to-local-time-sometimes-does-not-make-sense">Converting to local time sometimes does not make sense</a></li>
+    <li><a href="#references">References</a></li>
   </ul>
 </nav>
                 
-                <h1 id="timezone-handling-pitfalls-i">Timezone handling pitfalls I</h1>
-<h2 id="short-intro-of-the-domain">Short intro of the domain</h2>
-<p>Recently I have the pleasure to work as technology leader on a project that requires proper implementation of timezone handling, over some time I learned, sometimes the hard way quite a lot on this topic.</p>
-<p>Let us introduce an example domain: task scheduling, <em>the user can schedule a task for an arbitrary day in the future, and when that day comes she can marked it as done</em>. Later on we will add more requirements. For now:</p>
-<p><code>can_mark_as_done IF Task.scheduled_for &lt;= UTC_NOW.date()</code></p>
-<p>A rule of thumb is to use UTC as a default for your application and servers, so that&rsquo;s what we do here.</p>
-<p>Now lets suppose that the user lives in CET timezone which is UTC+1, this will break our logic: the user won&rsquo;t be able to mark the <code>Task</code> as done between 00:00-01:00 local time, because at that time it&rsquo;s still <em>the previous day</em> in the UTC timezone.</p>
-<p>How to solve it? There are couple of possibilities, lets examine the first one</p>
-<h2 id="changeing-the-_server-time_-eg-use-datetimenow-instead-of-datetimeutcnowin-python-terms">Changeing the <em>server time</em>, e.g. use <code>datetime.now()</code> instead of <code>datetime.utcnow()</code>(in Python terms)</h2>
-<p>Easy, and simple, works as a charm, until we won&rsquo;t have users from other parts of the world, other than our server&rsquo;s timezone. <em>Won&rsquo;t fix</em> as they say.</p>
-<h2 id="using-timezone-aware-type-for-the-taskscheduled_for-attribute">Using timezone-aware type for the <code>Task.scheduled_for</code> attribute</h2>
-<p>Fixes our logic, but has one substantial drawback - databases do not work well with tz-aware types, for example Postgres stores the timestamp normalized to UTC and does not store the information about the timezone, we would need to use a separate field to store it. So why complicate stuf? <em>Won&rsquo;t fix</em></p>
-<h2 id="converting-taskscheduled_for-value-to-utc-shifted-from-the-users-local-timezone-upon-object-creation">Converting <code>Task.scheduled_for</code> value to UTC shifted from the user&rsquo;s local timezone upon object creation.</h2>
-<p>So instead of saving just the day, for example <code>2020-12-12</code> we would transform it to datetime object <code>2020-12-12T00:00</code> and apply the shift resulting in <code>2020-12-11T23:00</code>. That way our logic would work smoothly around the midnight. And if we would need to query for this field the database would use a naive datetime type.</p>
-<p>But&hellip; isn&rsquo;t this a bit to complex? Let us introduce one more requirement: <em>our users travel a lot, so they do not stick to just one timezone, we would like to allow them complete the tasks wherever they currently are</em></p>
-<p>Because we saved the time upon creation, we are limited to that timezone, each time the user would travel to a different timezone we would need to adjust the value - that&rsquo;s pointless. So <em>won&rsquo;t fix</em>.</p>
-<h2 id="using-simply-local-time-to-validate-the-rules">Using simply local time to validate the rules.</h2>
-<p>Instead of using our <em>server time</em> to validate the logic, why not use user&rsquo;s local time? Something like this: <code>can_mark_as_done IF Task.scheduled_for &lt;= LOCAL_DATETIME_NOW.date()</code>. In a web application we can have the <em>local datetime</em> delivered via a header on each request. Obviously this loosens up the business rule quite substantially, but it actually happened earlier when we allowed our users to travel ;) One way to prevent &ldquo;cheating&rdquo; is to validate the incoming datetime if it is plausible - somewhere between -11 and +14 from current UTC time - as these are largest possible time shifts.</p>
-<p>Above solution is very easy to implement, works fantastic with mobile apps - always adjusting to user&rsquo;s timezone. My team and the client were very happy with this solution. Until one day.</p>
-<h2 id="new-requirement-coming">New requirement coming</h2>
-<p><em>We would like to introduce Teams, where users could rival on how many Tasks they complete. To make it fair, this time we will stick to one timezone for Tasks which will count towards the score</em>.</p>
-<p>Oh my, and our perfect solution just went down the drain. <a href="https://wasinski.dev/timezone-handling-pitfalls-2/">I will get back to this subject in my next post</a>.</p>
-<h2 id="things-to-remember">Things to remember</h2>
+                <h1 id="timezone-handling-pitfalls---part-2">Timezone handling pitfalls - part 2</h1>
+<p>This time I will focus on issues that arise when multiple users have to coordinate to a particular time, but they still can be in different timezones.</p>
+<p>Note that this is a continuation from <a href="https://wasinski.dev/timezone-handling-pitfalls-1/">the previous post which you can find here</a>.</p>
+<p>Let&rsquo;s recall our example domain:</p>
 <ul>
-<li>use plain naive types, which work well with databases</li>
-<li>storing UTC works great with dates in past but for future dates it becomes unnecessarily complex</li>
-<li>when possible, store naive-local date/datetime and evaluate it &ldquo;when the time comes&rdquo; against a local datetime, I call this approach <em>floating timezones</em></li>
+<li>we are dealing with <em>task scheduling</em></li>
+<li><em>the user can schedule a task for an arbitrary day in the future, and when that day comes she can mark it as done</em></li>
+<li><em>our users travel a lot, so they do not stick to just one timezone, we would like to allow them to complete the tasks wherever they currently are</em></li>
 </ul>
-<h2 id="further-reading--sources">Further reading / sources</h2>
+<p>which led us to implement <em>floating timezones</em> as I like to call it - business logic dependent on the user&rsquo;s local timezone, and storing the dates in the naive form (not timezone-aware). All the details are in the previous part.</p>
+<p>But the latest requirement destroyed our previous concept:</p>
 <ul>
-<li><a href="http://www.creativedeletion.com/2015/03/19/persisting_future_datetimes.html">How to save datetimes for future events - (when UTC is not the right answer)</a></li>
-<li><a href="https://www.postgresql.org/docs/11/datatype-datetime.html">Postgres documentation 8.5.1.3 timestamp tz-aware</a></li>
-<li><a href="https://stackoverflow.com/a/2532962/5792269">StackOverflow - Good starting point for learning about timezone handling pitfalls</a></li>
-<li><a href="https://wasinski.dev/timezone-handling-pitfalls-2/">Part II of this series</a>.</li>
+<li><em>We would like to introduce Teams, where users could rival on how many Tasks they complete. To make it fair, this time we will stick to one timezone for Tasks which will count towards the score</em></li>
 </ul>
+<p>This time we cannot use the user&rsquo;s local time, as it would not be fair to other users. We need to stick to a particular timezone against which we will validate the business rules, but additionally, we would still like to show to the users the time left to complete a particular Team Task considering their current timezone, as our users still travel a lot.</p>
+<h2 id="timezone-handling-isnt-simple-and-is-not-easy">Timezone handling isn&rsquo;t simple and is not easy</h2>
+<p>The time zones stuff tends to boil the brains of people, even experienced developers, and it wasn&rsquo;t different from me.
+I&rsquo;ll try to give you some examples of the problems that arise here.</p>
+<p><em>As a User I would like to see the deadline to finish a task</em></p>
+<ul>
+<li>
+<p><em>when I&rsquo;m in the Team common timezone</em></p>
+<p>e.g CET (UTC-1), and assuming tasks usually last until an end of a day, but for the local time of the whole Team. So this means that we can have a Task which can be done between <code>24.09.2020 - 00:00</code> to <code>24.09.2020 - 23:59</code> CET, but when you convert it to UTC to store it into the database it is then <code>23.09.2020 - 23:00</code> to <code>24.09.2020 - 23:59</code>, then when the client (for example a mobile app) in CET timezone is requesting for details of such Task the time has to be shifted to CET, usually that shift is done by the client, as the client knows in which timezone it is.</p>
+</li>
+<li>
+<p><em>when I&rsquo;m traveling to a different timezone</em> e.g. New York time</p>
+<p>This part is quite similar: a Task is stored in UTC, New York is UTC-5 so the datetimes visible in the client are <code>23.09.2020 - 17:00</code> to <code>24.09.2020 - 16:59</code>, however, please notice one thing: if previously all the Tasks had a deadline at the end of the day (local time), then it now turns out that depending on the location of the client the deadline and availability of the Task to finish might happen somewhere in the mid-day!</p>
+</li>
+</ul>
+<p>For both of these examples also notice that it is the mobile client which &ldquo;knows&rdquo; in which timezone it is, thus we could do the conversion on the mobile client, the backend would return UTC datetimes, and the client would shift them appropriately, this is a common approach, right? But it will not work in our case, or would work poorly, let&rsquo;s examine why.</p>
+<p>We have a Task scheduled for  <code>24.09.2020 - 00:00</code> to <code>24.09.2020 - 23:59</code> UTC, the mobile client is in New York (-5h) which makes the task available from <code>23.09.2020 - 19:00</code> to <code>24.09.2020 - 18:59</code> local time. When the mobile client what&rsquo;s to view tasks for 23.09 it has to send that date in the request obviously, but look what happens now: the server does not know in which timezone is the mobile client, so it does not know how to convert 23.09 into UTC datetime period which matches that date, so the only possibility would be to convert that period using maximal and minimal possible timezone shifts (-11 / +14 hours) which makes the period greater than 24h, resulting in returning Tasks to the client that are possibly one day before or after the requested date, leaving to the mobile client the task of shifting and cleaning the data.</p>
+<p>There is a better approach: just send to the server not only the local time but also the timezone, leaving the conversion for the server, so that it perfectly knows for what period return the Tasks. To make this conversion behavior consistent we should also do the conversion back from UTC to local time on the server.</p>
+<h2 id="when-timezones-change-their-time">When timezones change their time&hellip;</h2>
+<p>Another problem that arises here is the changes in the <em>common</em> timezone of the Team. That&rsquo;s exactly the thing that previously mentioned <em>floating timezones</em> handle so well by just using local time without any timezone information, but due to previously mentioned &ldquo;fairness&rdquo; reasons, we cannot use them here. A perfect example of a very common time shift is the introduction of <em>daylight saving time</em>, still so common in Europe. What it does is changing the relation of the Team&rsquo;s <em>common timezone</em> from for example -1 to -2 in Summer.</p>
+<p>There&rsquo;s no simple solution to this problem, the easiest is to take into account the appropriate shift when first converting the time to UTC, so for example when 2 Tasks are being scheduled, the first one for the date when there will be still CET time apply -1h, and the second already in the CEST - apply -2h shift. That&rsquo;s the easy part, because if you know the date you know if it will be with or without DST shift.</p>
+<p>If you ever encounter however a whole timezone shift, as it happened in Samoa Island around 2011 then I guess that it will require changing affected dates already written to the database.</p>
+<h2 id="job-scheduling">Job scheduling</h2>
+<p>Another problem, however, lies in scheduled jobs, which often are triggered based on a schedule. For example, when a Competition starts all of the competitors get a notification, it happens every Monday at 7:00, local time of course. Three solutions to that:</p>
+<ul>
+<li>Hardcode the schedule and reconfigure the application when required. Easiest but let&rsquo;s face it, not the most pleasant approach, and will not work if you need to support multiple different timezones.</li>
+<li>Fire a scheduled job at least once per hour but base the job on a datetime taken from the database, which will be a UTC datetime</li>
+<li>Schedule jobs dynamically using a library like <a href="https://apscheduler.readthedocs.io/en/stable/">APScheduler</a></li>
+</ul>
+<h2 id="converting-to-local-time-sometimes-does-not-make-sense">Converting to local time sometimes does not make sense</h2>
+<p>While developing the project it occurred to us that sometimes it does not make sense to convert times to the local timezone, or at least it feels clumsy to do so. One of the views in the mobile app was showing an aggregated number of completed Tasks in a particular day: if the user finished 3 Tasks of 4 at 25.09.2020 the view showed these numbers, it worked fine for so-called <em>floating timezones</em> when the datetimes where saved in the naive form, but when we introduced timezone-awareness it got weird because depending on the local timezone that finished Task might have counted for different dates or often two dates at once (recall a Task being available to do between mid-day hours despite being scheduled for the start of the day but in a different timezone). How to treat some cases? To be honest I do not know, as I think depends purely on the UX, in our case we just ditched that feature.</p>
+<h2 id="references">References</h2>
+<p><a href="https://wasinski.dev/timezone-handling-pitfalls-1/">Same as in my previous article</a></p>
 
 
                 
@@ -244,11 +253,11 @@
                 <hr>
                 <ul class="pager">
                     
-                    
-                    <li class="next">
-                        <a href="/dependency-injection-service-locator-1/" data-toggle="tooltip" data-placement="top" title="Is that Dependency Injection or Service Locator Pattern?">Next
-                            Post &rarr;</a>
+                    <li class="previous">
+                        <a href="/dependency-injection-service-locator-1/" data-toggle="tooltip" data-placement="top" title="Is that Dependency Injection or Service Locator Pattern?">&larr;
+                            Previous Post</a>
                     </li>
+                    
                     
                 </ul>
 

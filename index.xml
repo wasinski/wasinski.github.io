@@ -6,10 +6,18 @@
     <description>Recent content on Wasinski&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Sep 2020 12:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="https://wasinski.dev/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Fri, 02 Oct 2020 12:00:00 +0000</lastBuildDate><atom:link href="https://wasinski.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Timezone handling pitfalls II</title>
+      <link>https://wasinski.dev/timezone-handling-pitfalls-2/</link>
+      <pubDate>Fri, 02 Oct 2020 12:00:00 +0000</pubDate>
+      
+      <guid>https://wasinski.dev/timezone-handling-pitfalls-2/</guid>
+      <description>Timezone handling pitfalls - part 2 This time I will focus on issues that arise when multiple users have to coordinate to a particular time, but they still can be in different timezones.
+Note that this is a continuation from the previous post which you can find here.
+Let&amp;rsquo;s recall our example domain:
+ we are dealing with task scheduling the user can schedule a task for an arbitrary day in the future, and when that day comes she can mark it as done our users travel a lot, so they do not stick to just one timezone, we would like to allow them to complete the tasks wherever they currently are  which led us to implement floating timezones as I like to call it - business logic dependent on the user&amp;rsquo;s local timezone, and storing the dates in the naive form (not timezone-aware).</description>
+    </item>
     
     <item>
       <title>Is that Dependency Injection or Service Locator Pattern?</title>
