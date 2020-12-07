@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="Wasinski&#39;s Blog">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://wasinski.dev/img/background.jpg">
+    <meta property="twitter:image" content="https://wasinski.dev/img/background.jpg" />
+    
+
+    
+    <meta name="title" content="Comparison of Dependency Injection Libraries in Python, and my favorite one" />
+    <meta property="og:title" content="Comparison of Dependency Injection Libraries in Python, and my favorite one" />
+    <meta property="twitter:title" content="Comparison of Dependency Injection Libraries in Python, and my favorite one" />
+    
+
+    
+    <meta name="description" content="[...]there are just a few DI containers available, some of them do not even hold the definition of a good container[...]">
+    <meta property="og:description" content="[...]there are just a few DI containers available, some of them do not even hold the definition of a good container[...]" />
+    <meta property="twitter:description" content="[...]there are just a few DI containers available, some of them do not even hold the definition of a good container[...]" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="wasinski, Wasinski, Wąsiński, wąsiński, programming, programowanie, architecture, domain driven design, DDD, architektura, technical leadership, software design">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Comparison of Dependency Injection Libraries in Python, and my favorite one-Tomasz Wasinski Blog</title>
+
+    <link rel="canonical" href="/comparison-of-dependency-injection-libraries-in-python/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+	
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    
+    <script src="/js/jquery.min.js"></script>
+    
+    
+    <script src="/js/bootstrap.min.js"></script>
+    
+    
+    <script src="/js/hux-blog.min.js"></script>
+	
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/docco.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Wasinski&#39;s Blog</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/categories/tech">tech</a>
+                    </li>
+                    
+                    
+		    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/post-4.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                    </div>
+                    <h1>Comparison of Dependency Injection Libraries in Python, and my favorite one</h1>
+                    <h2 class="subheading">an unsung subject</h2>
+                    <span class="meta">
+			Posted by 
+			
+			    Tomasz Wąsiński
+			 
+			on 
+			Monday, December 7, 2020
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li><a href="#about-dependency-injection">About Dependency Injection</a></li>
+    <li><a href="#short-overview-of-available-di-libraries-in-python">Short overview of available DI libraries in Python</a>
+      <ul>
+        <li><a href="#what-describes-a-good-di-container">What describes a good DI container</a></li>
+        <li><a href="#overview-of-available-solutions">Overview of available solutions</a></li>
+      </ul>
+    </li>
+    <li><a href="#the-winner---dependencies-aka-injector">The winner - <em>dependencies</em> aka Injector</a>
+      <ul>
+        <li><a href="#fundamentals">Fundamentals</a></li>
+        <li><a href="#in-practice">In practice</a></li>
+        <li><a href="#pros">Pros</a></li>
+        <li><a href="#cons">Cons</a></li>
+        <li><a href="#patterns">Patterns</a></li>
+        <li><a href="#upcoming-enhancements">Upcoming enhancements</a></li>
+      </ul>
+    </li>
+    <li><a href="#summary">Summary</a></li>
+  </ul>
+</nav>
+                
+                <h1 id="comparison-of-dependency-injection-libraries-in-python-and-my-favorite-one">Comparison of Dependency Injection Libraries in Python, and my favorite one</h1>
+<h2 id="about-dependency-injection">About Dependency Injection</h2>
+<p><a href="https://wasinski.dev/dependency-injection-service-locator-1/">In one of my last posts, I gave an introduction to DI pattern</a>: why it is crucial for software projects &amp; how it differs from Service Locator patterns. Long story short using DI supports <em>Low Coupling &amp; High Cohesion</em> in turn giving us great testability and configurability.</p>
+<h2 id="short-overview-of-available-di-libraries-in-python">Short overview of available DI libraries in Python</h2>
+<p>DI is not a commonly used concept in the Python community, actually often it&rsquo;s quite neglected, because &ldquo;Python is not Java&rdquo;, obviously, but this does not mean that we should not strive to write good, testable code, and that&rsquo;s the reason why we should use DI.
+The popularity of Django, which suggests in its documentation a design that does not support any Inversion of Control also does not help with promoting good practices.
+Lately, FastAPI gain popularity, and it&rsquo;s the first (to my knowledge) web framework which supports native Dependency Injection
+Because of all of these reasons, there are just a few DI containers available, some of them do not even hold the definition of a good container.</p>
+<p><img src="/in-posts/post-4/globalcontainervsinstanciated.png" alt="Container which requires instantiation vs globally configured container"></p>
+<h3 id="what-describes-a-good-di-container">What describes a good DI container</h3>
+<p>A good DI container:</p>
+<ul>
+<li><strong>must not</strong> be a Service Locator, and that&rsquo;s easier to get as one might think, just go back to my previous post about this topic</li>
+<li><strong>must not</strong> be configurable globally (as a globally available instance), because it introduces problems with the reconfiguration</li>
+<li><strong>must</strong> support <em>shared dependencies</em>, so we wouldn&rsquo;t need to exploit the Singleton Pattern</li>
+<li><strong>must</strong> support use of <em>profiles</em>, so we can configure it accordingly on different environments</li>
+<li><strong>should</strong> support the Decorator Pattern</li>
+</ul>
+<p><img src="/in-posts/post-4/containerwithsharedinstancebehavior.png" alt="Container with shared instance behavior explained"></p>
+<h3 id="overview-of-available-solutions">Overview of available solutions</h3>
+<ul>
+<li>
+<p><a href="https://github.com/ivankorobkov/python-inject">https://github.com/ivankorobkov/python-inject</a>
+disqualified because it uses globally available configuration, and descriptors to pull instances from it, which makes it more of a Service Locator. It also uses Singletons as the default scope which is even worse.</p>
+</li>
+<li>
+<p><a href="https://github.com/google/pinject">https://github.com/google/pinject</a>
+from Google. Feels highly outdated and so it is, as the documentation is still written for Python2. Also, it uses Singletons as default, so even though the container is an instance created &ldquo;in place&rdquo; it still returns the same instances again and again. It does not support any reconfiguration solutions for tests.</p>
+</li>
+<li>
+<p><a href="https://github.com/alecthomas/injector">https://github.com/alecthomas/injector</a>
+well&hellip; I can&rsquo;t tell anything <em>very</em> bad about it, but nothing good either. My problem with it is its interface, which for me isn&rsquo;t very pleasant to use.</p>
+</li>
+<li>
+<p><a href="http://python-dependency-injector.ets-labs.org/introduction/di_in_python.html">http://python-dependency-injector.ets-labs.org/introduction/di_in_python.html</a>
+Very good library, actively supported, it&rsquo;s the only drawback from my point of view is the boilerplate which is necessary to create even a small app with it. But besides that it has many pros: support for multiple types of scopes (default is shared instance, but it includes also very interesting <code>Configuration</code> or <code>Resource</code>); it allows defining small containers, no global configuration, supports modularization; it allows to override the configuration for e.g. tests purpose; provides <code>wire</code> mechanism to integrate with popular frameworks, even Django. A really good choice!</p>
+</li>
+</ul>
+<h2 id="the-winner---dependencies-aka-injector">The winner - <em>dependencies</em> aka Injector</h2>
+<p>My personal winner is <a href="https://github.com/proofit404/dependencies">https://github.com/proofit404/dependencies</a> which I&rsquo;m used to cal <strong>Injector</strong>, because that&rsquo;s the name of the main class.</p>
+<h3 id="fundamentals">Fundamentals</h3>
+<ul>
+<li>dependencies are matched by <code>__init__</code> attribute names (kwargs)</li>
+<li>container returns always a fresh instance when called for one</li>
+<li>it uses <em>shared instance</em> scope by default, and it&rsquo;s the only available scope out of the box.</li>
+</ul>
+<p>These simple mechanisms allowed the author of the library to create a really nice abstraction over the configuration of the container and its internals. Actually, everything is very nicely encapsulated, and the user must remember about only these 3 points.</p>
+<p>One might ask why kwargs and not types as it usually is in other libraries?
+The author justifies it by superior readability of his approach which would not be possible with the usage of types:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> List
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Container</span>:
+	List <span style="color:#f92672">=</span> list
+</code></pre></div><p><code>Container.List</code> is just a string under the hood. Well, it&rsquo;s really hard to argue with the author, because this design really is pretty, just check it below!</p>
+<h3 id="in-practice">In practice</h3>
+<p>This is how the code can look like in practice</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomerFeedContainer</span>(Injector):
+    bml_client <span style="color:#f92672">=</span> BMLAPIClient
+    drunken_water_info_provider <span style="color:#f92672">=</span> BMLDrunkenWaterInfoProvider
+
+    <span style="color:#75715e"># entry points</span>
+    query_entry <span style="color:#f92672">=</span> CustomerFeedQueryEntry
+
+    <span style="color:#75715e"># queries</span>
+    GetDrunkenWaterDataForCustomerQuery <span style="color:#f92672">=</span> GetDrunkenWaterDataForCustomerHandler
+
+	
+<span style="color:#a6e22e">@dataclass</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomerFeedQueryEntry</span>(InjectorQueryEntry):
+    GetDrunkenWaterDataForCustomerQuery: GetDrunkenWaterDataForCustomerHandler
+
+<span style="color:#a6e22e">@dataclass</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BMLDrunkenWaterInfoProvider</span>:
+	bml_client: BMLAPIClient
+	[<span style="color:#f92672">...</span>]
+
+<span style="color:#a6e22e">@dataclass</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GetDrunkenWaterDataForCustomerHandler</span>(
+    QueryHandler[GetDrunkenWaterDataForCustomerQuery, DrunkenWaterView]
+):
+    drunken_water_info_provider: DrunkenWaterInfoProvider
+	[<span style="color:#f92672">...</span>]
+</code></pre></div><p><code>CustomerFeedContainer</code> stores the configuration, a call to it&rsquo;s <code>getattr</code> method will return a built instance of one of the defined dependencies. Let&rsquo;s say we want to get an instance of <code>BMLDrunkenWaterInfoProvider</code> which uses <code>BMLAPIClient</code> underneath. We just do:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python">provider_instance <span style="color:#f92672">=</span> CustomerFeedContainer<span style="color:#f92672">.</span>drunken_water_info_provider
+</code></pre></div><p>what happens under the hood is the match of <code>CustomerFeedContainer.bml_client</code> to <code>BMLDrunkenWaterInfoProvider.__init__(self, bml_client)</code>, which allows us to provide different implementations of <code>BMLAPIClient</code> as long as it matches the kwarg name and the interface of course.</p>
+<h3 id="pros">Pros</h3>
+<ul>
+<li>very easy to use, thanks to it&rsquo;s design the DI configuration is very simple to do</li>
+<li>it allows to override the configuration for tests with the use of <code>Injector()</code> or previously <code>Injector.let()</code></li>
+<li>it does introduce to our code any hard dependencies like decorators or descriptors as other libraries usually do. We only need to watch out for <em>override</em> usage in tests, but that can be abstracted out too.</li>
+<li>concrete <em>composition root</em> in the form of <code>Injector</code> class - supports modularization</li>
+<li>nice documentation</li>
+</ul>
+<h3 id="cons">Cons</h3>
+<ul>
+<li>its simplicity is also a con, as it does not provide too many features. If you need a Singleton you have to think about how to achieve that, but that&rsquo;s a pro too if you&rsquo;d ask me - thinking before doing is good</li>
+<li>does not provide any integration for frameworks</li>
+<li>returned instances aren&rsquo;t typed</li>
+<li>only one maintainer, but very active and supportive</li>
+</ul>
+<h3 id="patterns">Patterns</h3>
+<h4 id="composition-root">Composition root</h4>
+<p>When we do not have a globally stored configuration/container as in one of the fore-mentioned libraries we should strive for small purposeful containers which will be our composition roots for e.g. modules of our application. A good idea is also to separate the business logic dependencies from the infrastructural ones and couple them together somewhere at the root of our application.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DI</span>(Injector):
+    db_session <span style="color:#f92672">=</span> DBSession
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Config</span>(Injector):
+	db_uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;postgres://localhost&#34;</span>
+
+DI<span style="color:#f92672">.</span>db_session  <span style="color:#75715e"># raises DepencencyError</span>
+(DI <span style="color:#f92672">&amp;</span> Config)<span style="color:#f92672">.</span>db_session  <span style="color:#75715e"># OK!</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DIAndConfig</span>(DI, Config): <span style="color:#f92672">...</span>
+
+DIAndConfig<span style="color:#f92672">.</span>db_session  <span style="color:#75715e"># OK!</span>
+</code></pre></div><h4 id="too-many-dependencies-anti-pattern"><em>too many dependencies</em> anti-pattern</h4>
+<p>It&rsquo;s not hard to predict that because the container builds always a fresh instance, then we should care about having a small number of dependencies in the classes. What it comes down to in practice is having specific <code>ApplicationService</code>s or as I prefer <code>CommandHandler</code>s which do one thing.</p>
+<h4 id="container-encapsulation">Container encapsulation</h4>
+<p>As I wrote in one of my last posts injecting the container is a very bad thing to do, because it becomes more of a service locator than a DI solution. However, depending on how our app&rsquo;s architecture is layered, or how we do the assembly of our whole app, for example, based on the framework we&rsquo;re using for web, or when our app is composed of modules we might need to &ldquo;call&rdquo; our container from a client class.
+My solution to that problem is encapsulating the container behind a nice abstraction:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Module</span>(ABC):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Module encapsulates a module, providing only 2 actions:
+</span><span style="color:#e6db74">    handle - for commands/queries,
+</span><span style="color:#e6db74">    override - for overriding module&#39;s setup, particularly dependencies.
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+
+    <span style="color:#a6e22e">@abstractmethod</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle</span>(self, action: Union[Query, Command]) <span style="color:#f92672">-&gt;</span> Any:
+        <span style="color:#66d9ef">pass</span>
+
+    <span style="color:#a6e22e">@abstractmethod</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">override</span>(self: TMod, <span style="color:#f92672">**</span>dependencies: Any) <span style="color:#f92672">-&gt;</span> TMod:
+        <span style="color:#66d9ef">pass</span>
+
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InjectorModule</span>(Module):
+    <span style="color:#66d9ef">def</span> __init__(self, container: Type[Injector]) <span style="color:#f92672">-&gt;</span> None:
+        self<span style="color:#f92672">.</span>container <span style="color:#f92672">=</span> container
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle</span>(self, action: Union[Query, Command]) <span style="color:#f92672">-&gt;</span> Any:
+        <span style="color:#66d9ef">if</span> isinstance(action, Query):
+            <span style="color:#66d9ef">return</span> cast(InjectorQueryEntry, self<span style="color:#f92672">.</span>container<span style="color:#f92672">.</span>query_entry)<span style="color:#f92672">.</span>handle(action)
+        <span style="color:#66d9ef">if</span> isinstance(action, Command):
+            <span style="color:#66d9ef">return</span> cast(InjectorCommandEntry, self<span style="color:#f92672">.</span>container<span style="color:#f92672">.</span>command_entry)<span style="color:#f92672">.</span>handle(action)
+        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">&#34;Action must be a Command or Query&#34;</span>)
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">override</span>(self: TInjectorMod, <span style="color:#f92672">**</span>dependencies: Any) <span style="color:#f92672">-&gt;</span> TInjectorMod:
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>__class__(self<span style="color:#f92672">.</span>container<span style="color:#f92672">.</span>let(<span style="color:#f92672">**</span>dependencies))
+
+    <span style="color:#a6e22e">@classmethod</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">new</span>(cls: Type[TInjectorMod], container: Type[Injector]) <span style="color:#f92672">-&gt;</span> TInjectorMod:
+        <span style="color:#66d9ef">return</span> cls(container)
+
+
+CustomerActivities <span style="color:#f92672">=</span> InjectorModule<span style="color:#f92672">.</span>new(CustomerActivitiesContainer)
+</code></pre></div><p>That way a <code>Controller</code> element of the app can have direct access only to a <code>Module</code> with a very specific and small interface, and not the whole <code>Injector</code> container.</p>
+<p>Encapsulating the container is also crucial from the point of view of it&rsquo;s exchange to a different solution some day. It mitigates one of the cons that I mentioned before: it can hide the calls to override mechanism.</p>
+<h4 id="singletons-or-long-living-instances">Singletons or long-living instances</h4>
+<p>Sometimes we might want to use the same instance (or rather have it returned by the Injector) through many calls to the DI container, an example could be the same connection to a database. There are some ways to deal with that.</p>
+<p>We can create the instance out of the scope of the container and then pass it as a kwarg using the <em>override</em> mechanism:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DI</span>(Injector):
+	singleton <span style="color:#f92672">=</span> None
+
+a_singleton <span style="color:#f92672">=</span> SomeService()
+
+di <span style="color:#f92672">=</span> DI<span style="color:#f92672">.</span>let(singleton<span style="color:#f92672">=</span>a_singleton)
+
+<span style="color:#66d9ef">assert</span> di<span style="color:#f92672">.</span>singleton <span style="color:#f92672">is</span> di<span style="color:#f92672">.</span>singleton <span style="color:#f92672">is</span> a_singleton
+</code></pre></div><p>Or we can use &ldquo;the real&rdquo; Singleton Pattern:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span>(type):
+    _instances <span style="color:#f92672">=</span> {}
+    <span style="color:#66d9ef">def</span> __call__(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+        <span style="color:#66d9ef">if</span> cls <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> cls<span style="color:#f92672">.</span>_instances:
+            cls<span style="color:#f92672">.</span>_instances[cls] <span style="color:#f92672">=</span> super(Singleton, cls)<span style="color:#f92672">.</span>__call__(<span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_instances[cls]
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DBSession</span>(metaclass<span style="color:#f92672">=</span>Singleton):
+	
+    <span style="color:#66d9ef">def</span> __init__(self, db_uri):
+        self<span style="color:#f92672">.</span>db_uri <span style="color:#f92672">=</span> db_uri
+        self<span style="color:#f92672">.</span>_is_connected <span style="color:#f92672">=</span> False
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">connect</span>(self):
+        self<span style="color:#f92672">.</span>_is_connected <span style="color:#f92672">=</span> True
+
+    <span style="color:#a6e22e">@property</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_connected</span>(self):
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_is_connected
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DI</span>(Injector):
+    db_session <span style="color:#f92672">=</span> DBSession
+    db_uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;postgres://localhost&#34;</span>
+		
+DI<span style="color:#f92672">.</span>db_session<span style="color:#f92672">.</span>connect()
+<span style="color:#66d9ef">assert</span> DI<span style="color:#f92672">.</span>db_session<span style="color:#f92672">.</span>is_connected
+</code></pre></div><p>In one of my projects I used such a nice piece of code to have the <code>UnitOfWork</code> live through several calls to the <code>Module</code> which holds it - to be able to check the emitted <code>DomainEvents</code> (out of scope here)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FakeInjectorModule</span>(InjectorModule):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    A Module which uses the same UoW instance, providing a scoped Singleton
+</span><span style="color:#e6db74">    object. This allows to have:
+</span><span style="color:#e6db74">    - persistence in FakeRepositories
+</span><span style="color:#e6db74">    - checking if UoW was committed
+</span><span style="color:#e6db74">    - checking published Events
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+
+    _unit_of_work: FakeUnitOfWork
+
+    <span style="color:#66d9ef">def</span> __init__(self, container: Injector) <span style="color:#f92672">-&gt;</span> None:
+        self<span style="color:#f92672">.</span>_unit_of_work <span style="color:#f92672">=</span> container<span style="color:#f92672">.</span>unit_of_work
+        self<span style="color:#f92672">.</span>container <span style="color:#f92672">=</span> container<span style="color:#f92672">.</span>let(unit_of_work<span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>_unit_of_work)
+
+    <span style="color:#a6e22e">@property</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">unit_of_work</span>(self) <span style="color:#f92672">-&gt;</span> FakeUnitOfWork:
+        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_unit_of_work
+
+</code></pre></div><p>Of course, I think that building the instance outside of the container is a much better, reliable, and predictable approach than using the Singleton. It&rsquo;s common to forget that we are using a Singleton&hellip;</p>
+<h4 id="profiles">Profiles</h4>
+<p>To configure dynamically the dependencies, for example, based on environmental variables or something you can use a Factory-like custom provider and <code>@value</code> decorator. Below I used string <code>profiles</code>, but it does not matter where the <code>profiles</code> come from, it can be envs</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#f92672">from</span> dependencies <span style="color:#f92672">import</span> Injector, this, value
+<span style="color:#f92672">from</span> dataclasses <span style="color:#f92672">import</span> dataclass
+
+
+<span style="color:#a6e22e">@dataclass</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DB</span>:
+    name: str
+
+
+<span style="color:#a6e22e">@dataclass</span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DBProvider</span>:
+    profiles: str
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">provide</span>(self):
+        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;dev&#34;</span> <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>profiles:
+            <span style="color:#66d9ef">return</span> DB(<span style="color:#e6db74">&#34;DEV DB&#34;</span>)
+        <span style="color:#66d9ef">else</span>:
+            <span style="color:#66d9ef">return</span> DB(<span style="color:#e6db74">&#34;PROD DB&#34;</span>)
+
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DI</span>(Injector):
+    db <span style="color:#f92672">=</span> this<span style="color:#f92672">.</span>db_provider
+
+    <span style="color:#a6e22e">@value</span>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">db_provider</span>(profiles: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>):
+        <span style="color:#66d9ef">return</span> DBProvider(profiles)<span style="color:#f92672">.</span>provide()
+
+
+dev_db <span style="color:#f92672">=</span> DI<span style="color:#f92672">.</span>db
+prod_db <span style="color:#f92672">=</span> DI<span style="color:#f92672">.</span>let(profiles<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;dev&#34;</span>)<span style="color:#f92672">.</span>db
+</code></pre></div><h3 id="upcoming-enhancements">Upcoming enhancements</h3>
+<h4 id="easy-decorator-pattern-support">easy Decorator Pattern support</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#f92672">from</span> dependencies <span style="color:#f92672">import</span> Injector, decorate
+
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CommandLoggerHandler</span>(CommandHandler):
+	logger: Logger
+	handler: CommandHandler
+	
+	<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle</span>(cmd: Command):
+		self<span style="color:#f92672">.</span>logger<span style="color:#f92672">.</span>log(f<span style="color:#e6db74">&#34;handle command {cmd}&#34;</span>)
+		<span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>handler(cmd)
+
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomerActivitiesContainer</span>(Injector):
+    unit_of_work <span style="color:#f92672">=</span> SqlAlchemyCustomerActivitiesUnitOfWork
+    logger <span style="color:#f92672">=</span> StructuredLogger
+
+    <span style="color:#75715e"># entry points</span>
+    command_entry <span style="color:#f92672">=</span> CustomerActivitiesCommandEntry
+    query_entry <span style="color:#f92672">=</span> CustomerActivitiesQueryEntry
+
+    <span style="color:#75715e"># commands</span>
+    ScheduleItemCommand <span style="color:#f92672">=</span> decorate(CommandLoggerHandler, ScheduleItemHandler)
+    MarkItemAsDoneCommand <span style="color:#f92672">=</span> MarkItemAsDoneHandler
+
+    <span style="color:#75715e"># queries</span>
+    GetScheduledItemQuery <span style="color:#f92672">=</span> decorate(QueryLoggerHandler, GetScheduledItemQueryHandler)
+    GetAgendaItemsQuery <span style="color:#f92672">=</span> decorate(QueryLoggerHandler, GetAgendaItemsQueryHandler)
+</code></pre></div><p>I the future we might get such a nice way to apply the Decorator Pattern. It&rsquo;s supported currently by using <code>this</code> proxy and inner-class Injector containers which makes it very hard to read.</p>
+<h2 id="summary">Summary</h2>
+<p>DI in Python is not a popular subject. We have 3 libraries which match the definition:</p>
+<ul>
+<li><a href="https://github.com/alecthomas/injector">alecthomas/injector</a> I do not like its interface, but I know it&rsquo;s being used in production by some people</li>
+<li><a href="http://python-dependency-injector.ets-labs.org/introduction/di_in_python.html">ets-labs/python-dependency-injector</a> very expanded library, with constant support, the problem is it&rsquo;s boilerplate, if that does not bother you, then it&rsquo;s a great choice</li>
+<li><a href="http://python-dependency-injector.ets-labs.org/introduction/di_in_python.html">proofit404/dependencies</a> (Injector) simple, but provided all the necessary features. If you need something that&rsquo;s not provided then just think about the design in your application, cause the flow might be somewhere there. Beautiful configuration. Perfect match for agile projects ;)</li>
+</ul>
+
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/timezone-handling-pitfalls-2/" data-toggle="tooltip" data-placement="top" title="Timezone handling pitfalls II">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                   <li>
+                       <a href="" rel="alternate" type="application/rss+xml" title="Wasinski&#39;s Blog" >
+                           <span class="fa-stack fa-lg">
+                               <i class="fa fa-circle fa-stack-2x"></i>
+                               <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                           </span>
+                       </a>
+                   </li>
+                   
+                    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://stackoverflow.com/users/5792269/antash/">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+
+                    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wasinski">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    <li>
+                        <a target="_blank" href="https://www.linkedin.com/in/tomasz-w%C4%85si%C5%84ski-a7700ba5/">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; Wasinski&#39;s Blog 2020
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite">CleanWhite Hugo Theme</a> by <a href="https://zhaohuabing.com">Huabing</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=zhaohuabing&repo=hugo-theme-cleanwhite&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+</body>
+</html>

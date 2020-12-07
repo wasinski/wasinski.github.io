@@ -6,7 +6,17 @@
     <description>Recent content on Wasinski&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 02 Oct 2020 12:00:00 +0000</lastBuildDate><atom:link href="https://wasinski.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 07 Dec 2020 06:00:00 +0000</lastBuildDate><atom:link href="https://wasinski.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Comparison of Dependency Injection Libraries in Python, and my favorite one</title>
+      <link>https://wasinski.dev/comparison-of-dependency-injection-libraries-in-python/</link>
+      <pubDate>Mon, 07 Dec 2020 06:00:00 +0000</pubDate>
+      
+      <guid>https://wasinski.dev/comparison-of-dependency-injection-libraries-in-python/</guid>
+      <description>Comparison of Dependency Injection Libraries in Python, and my favorite one About Dependency Injection In one of my last posts, I gave an introduction to DI pattern: why it is crucial for software projects &amp;amp; how it differs from Service Locator patterns. Long story short using DI supports Low Coupling &amp;amp; High Cohesion in turn giving us great testability and configurability.
+Short overview of available DI libraries in Python DI is not a commonly used concept in the Python community, actually often it&amp;rsquo;s quite neglected, because &amp;ldquo;Python is not Java&amp;rdquo;, obviously, but this does not mean that we should not strive to write good, testable code, and that&amp;rsquo;s the reason why we should use DI.</description>
+    </item>
+    
     <item>
       <title>Timezone handling pitfalls II</title>
       <link>https://wasinski.dev/timezone-handling-pitfalls-2/</link>
